@@ -50,8 +50,6 @@ class view:
         Recursively sets the reveal flag for each surrounding tile.
         Reveal all connected tiles that are labelled 0 in the gameboard.
         """
-        surroundings = self.get_surroundings_list(x, y)
-
         # Hit an integer that is not a bomb so it stops the reveal process
         if self.board[x, y] != 0 and self.board[x, y] != 9:
             self.bool_board[x, y] = 1
@@ -61,6 +59,7 @@ class view:
             self.game_over_flag = True
         # Hit a 0, reveal all adjacent tiles until you hit an integer >0
         else:
+            surroundings = self.get_surroundings_list(x, y)
             self.bool_board[x, y] = 1
             for surrounding in surroundings:
                 surrounding_x = surrounding[0]
