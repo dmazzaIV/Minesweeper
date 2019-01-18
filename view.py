@@ -9,6 +9,7 @@ class view:
         # Create board to hold the flag for whether a tile has been revealed
         self.size = np.sqrt(len(self.board))
         self.bool_board = np.zeros(self.size, self.size)
+        self.game_over_flag = False
 
     def print_board(self):
         """Prints the current state of the game view.
@@ -37,8 +38,8 @@ class view:
         for sur_x in [-1, 0, 1]:
             for sur_y in [-1, 0, 1]:
                 surrounding_x = x + sur_x
-                surrouding_y = y + sur_y
-                surroundings.append((sur_x, sur_y))
+                surrounding_y = y + sur_y
+                surroundings.append((surrounding_x, surrounding_y))
         return surroundings
 
     def reveal_surroundings(self, x: int, y: int):
@@ -47,12 +48,26 @@ class view:
         Will genereate a list of all surrounding tiles.
         Iterates through the list.
         Recursively sets the reveal flag for each surrounding tile.
-        Revealing all tiles that are labelled 0 in the gameboard.
+        Reveal all connected tiles that are labelled 0 in the gameboard.
         """
         surroundings = self.get_surroundings_list(x, y)
 
+        # Hit an integer that is not a bomb so it stops the reveal process
+        if self.board[x, y] != 0 and self.board[x, y] != 9:
+            self.bool_board[x, y] = 1
+        # Hit a bomb, reveal the bomb and set the game over flag to true
+        elif self.board[x, y] == 9:
+            self.bool_board[x, y] = 1
+            self.game_over_flag = True
+        # Hit a 0, reveal all adjacent tiles until you hit an integer >0
+        else:
+            self.bool_board[x, y] = 1
+            for surrounding in surroundings:
+                surrounding_x = surrounding[0]
+                surrounding_y = surrounding[1]
+                self.reveal_surroundings(surrounding_x, surrounding_y)
 
-    def update_view(self, x: int, y: int):
-        self.bool_board[x, y] = 1
+    def update_view(self, x: int, y: int) -> bool:
+        self.reveal_surroundings(x, y)
         self.print_board()
-
+        return self.game_over_flag
